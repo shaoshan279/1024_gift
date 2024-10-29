@@ -1,5 +1,7 @@
-# hug sad bunnies
+# 程序员礼物
 
-A Pen created on CodePen.io. Original URL: [https://codepen.io/Ma5a/pen/zYgrqrL](https://codepen.io/Ma5a/pen/zYgrqrL).
+> 一份送给对象的礼物
+通过寻找对方的大头人物, 触发不同的剧情, 类似Q&A问答, 惊喜礼物环节
+具体待开发完成后补充..
 
-This is a simple game where you walk around the forest to hug sad bunnies. Navigate by clicking or touching the screen. Arrows indicate where the closest sad bunnies are.
+源码出处: [https://codepen.io/Ma5a/pen/zYgrqrL](https://codepen.io/Ma5a/pen/zYgrqrL).
