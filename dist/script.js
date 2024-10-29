@@ -9,27 +9,24 @@ function init() {
         bunnyPos: [],
         endMessage: document.querySelector('.end-message'),
         button: document.querySelector('button'),
-
-
         modal: document.getElementById('quizModal'),
         quizQuestion: document.getElementById('quizQuestion'),
         quizOptions: document.getElementById('quizOptions'),
+        audio: document.getElementById('background-music'),
     }
 
-
-    const qaList = [
+    let qaList = [
         {question: "哪个数字最大", options: [1,2,3,4], type:'radio'},
         {question: "请输入李大广的名字", options: [], type:'input'},
-
     ]
-    //
+
     const radToDeg = rad => Math.round(rad * (180 / Math.PI))
-    // 计算距离
     const distanceBetween = (a, b) => Math.round(Math.sqrt(Math.pow((a.x - b.x), 2) + Math.pow((a.y - b.y), 2)))
     const randomN = max => Math.ceil(Math.random() * max)
     const px = n => `${n}px`
-    // 设置位置, 以左上角为几点
     const setPos = ({el, x, y}) => Object.assign(el.style, {left: `${x}px`, top: `${y}px`})
+
+    let playingMusic = false;
 
     const setSize = ({el, w, h, d}) => {
         const m = d || 1
@@ -75,7 +72,6 @@ function init() {
         sadBunnies: []
     }
 
-    // 调整兔子雷达的大小，使其适应窗口尺寸。在窗口大小改变时调用，确保雷达始终保持在视口内。
     const resizeBunnyRadar = () => {
         const {innerWidth: w, innerHeight: h} = window
         const size = w > h ? h : w
@@ -85,37 +81,72 @@ function init() {
         })
     }
 
-    // 触发兔子的随机移动。每隔一段时间，让兔子随机朝某个方向移动，并更新其动画。
     const triggerBunnyWalk = bunny => {
         bunny.animationTimer = setInterval(() => {
             if (!settings.isWindowActive) return
-            const dir = ['up', 'down', 'right', 'left'][Math.floor(Math.random() * 4)]
-            const {d} = settings
+            if (!bunny.el.classList.contains('sad')) {
+                followPlayer(bunny)
+            } else {
+                const dir = ['up', 'down', 'right', 'left'][Math.floor(Math.random() * 4)]
+                const {d} = settings
 
-            bunny.move = {
-                down: {x: 0, y: d},
-                up: {x: 0, y: -d},
-                right: {x: d, y: 0},
-                left: {x: -d, y: 0}
-            }[dir]
+                bunny.move = {
+                    down: {x: 0, y: d},
+                    up: {x: 0, y: -d},
+                    right: {x: d, y: 0},
+                    left: {x: -d, y: 0}
+                }[dir]
 
-            walk(bunny, dir)
-            setTimeout(() => walk(bunny, dir), 300)
-            setTimeout(() => walk(bunny, dir), 600)
-            setTimeout(() => stopSprite(bunny), 900)
+                walk(bunny, dir)
+                setTimeout(() => walk(bunny, dir), 300)
+                setTimeout(() => walk(bunny, dir), 600)
+                setTimeout(() => stopSprite(bunny), 900)
+            }
         }, 2000)
     }
 
-    // 获取地图中随机的x或y坐标，用于放置兔子和树的位置。
+    const followPlayer = bunny => {
+        clearInterval(bunny.animationTimer)
+        bunny.animationTimer = setInterval(() => {
+            if (!settings.isWindowActive) return
+            const {d} = settings
+            let dir = player.x > bunny.x ? 'right' : 'left'
+            bunny.move = {
+                down: {x: 0, y: settings.d},
+                up: {x: 0, y: -settings.d},
+                right: {x: settings.d, y: 0},
+                left: {x: -settings.d, y: 0}
+            }[dir]
+
+
+            if (Math.abs(bunny.y - player.y) > 20) {
+                bunny.move.y = bunny.y > player.y ? -d : d
+                dir = bunny.move.y === -d ? 'up' : 'down'
+            } else {
+                bunny.move.y = 0
+            }
+            if (Math.abs(bunny.x - player.x) > 20) {
+                bunny.move.x = bunny.x > player.x ? -d : d
+                dir = bunny.move.x === -d ? 'left' : 'right'
+            } else {
+                bunny.move.x = 0
+            }
+
+            bunny.move.x || bunny.move.y
+                ? walk(bunny, dir)
+                : stopSprite(bunny)
+        }, 250)
+    }
+
     const getRandomPos = key => 20 * randomN((settings.map[key] / 20) - 1)
 
-    // 添加一个兔子到地图上。创建兔子的元素，设置初始位置，并可能触发其随机移动。
     const addBunny = () => {
         const bunny = {
             id: `bunny-${settings.bunnies.length + 1}`,
             x: getRandomPos('w'), y: getRandomPos('h'),
             frameOffset: 1,
             animationTimer: null,
+            animationTimer2: null,
             el: Object.assign(document.createElement('div'),
                 {
                     className: 'sprite-container sad',
@@ -136,7 +167,6 @@ function init() {
         if (randomN(2) === 2) triggerBunnyWalk(bunny)
     }
 
-    // 添加一棵树到地图上。创建树的元素，设置位置。
     const addTree = () => {
         const tree = {
             id: `tree-${settings.elements.length + 1}`,
@@ -154,13 +184,11 @@ function init() {
         setPos(tree)
     }
 
-    // 设置元素的背景位置，用于精灵动画的帧切换。
     const setBackgroundPos = ({el, x, y}) => {
         el.style.setProperty('--bx', px(x))
         el.style.setProperty('--by', px(y))
     }
 
-    // 根据方向dir更新角色的精灵动画。改变背景位置以显示不同的动画帧。
     const animateSprite = (actor, dir) => {
         const h = -32 * 2
         actor.sprite.y = {
@@ -174,7 +202,6 @@ function init() {
         setBackgroundPos(actor.sprite)
     }
 
-    // 当兔子被“拥抱”后，显示感谢信息。添加指定的CSS类来触发动画效果。
     const triggerBunnyMessage = (bunny, classToAdd) => {
         bunny.el.setAttribute('message', ['thanks!', 'arigato!', 'yeah!', '^ _ ^', 'thank you!'][randomN(5) - 1])
         bunny.el.classList.add(classToAdd)
@@ -183,35 +210,34 @@ function init() {
         }, 800)
     }
 
-    // 更新未被“拥抱”的兔子数量，更新指示器的显示。如果所有兔子都被“拥抱”了，显示结束消息。
+    const getQuestion = () => {
+        let num = randomN(qaList.length-1);
+        let questionObj = qaList[num];
+        return questionObj;
+    }
+
     const updateSadBunnyCount = () => {
         const sadBunnyCount = settings.bunnies.filter(b => b.sad).length
         elements.indicator.innerHTML = sadBunnyCount ? `x ${sadBunnyCount}` : ''
+        const questionFlag = sadBunnyCount % 2 == 0
+        if (questionFlag) {
+            let questionObj = qaList[randomN(qaList.length-1)];
+            showQuizModal(questionObj)
+        }
         if (!sadBunnyCount) {
-            // elements.endMessage.classList.remove('d-none')
+            elements.endMessage.classList.remove('d-none')
             elements.indicator.classList.add('happy')
         }
     }
 
-    // 显示弹出层，传入问题和答案类型（'radio' 或 'input'）
-    const showQuizModal = (question, options, type) => {
-        const modal = document.getElementById('quizModal');
-        const quizQuestion = document.getElementById('quizQuestion');
-        const quizOptions = document.getElementById('quizOptions');
-
-        // 设置问题文本
+    const showQuizModal = ({question, options, type}) => {
         elements.quizQuestion.textContent = question;
-
-        // 清空选项内容
         elements.quizOptions.innerHTML = '';
 
-        // 根据类型生成选项
         if (type === 'radio') {
             options.forEach((option, index) => {
                 const label = document.createElement('label');
-                label.innerHTML = `
-        <input type="radio" name="quizOption" value="${option}"> ${option}
-      `;
+                label.innerHTML = `                    <input type="radio" name="quizOption" value="${option}"> ${option}                `;
                 elements.quizOptions.appendChild(label);
             });
         } else if (type === 'input') {
@@ -222,31 +248,8 @@ function init() {
             elements.quizOptions.appendChild(input);
         }
 
-        // 显示弹出层
         elements.modal.classList.remove('d-none');
     }
-
-    // 隐藏弹出层
-    const closeQuizModal = () => {
-        elements.modal.classList.add('d-none');
-    }
-
-    // 提交答案逻辑
-    const submitAnswer = () => {
-        const selectedOption = document.querySelector('input[name="quizOption"]:checked');
-        const inputAnswer = document.querySelector('input[name="quizInput"]');
-
-        let answer = '';
-        if (selectedOption) {
-            answer = selectedOption.value;
-        } else if (inputAnswer) {
-            answer = inputAnswer.value;
-        }
-
-        alert(`您的答案是：${answer}`);
-        closeQuizModal();
-    }
-
 
     const hugBunny = bunny => {
         const classToAdd = bunny.x > player.x ? 'hug-bear-bunny' : 'hug-bunny-bear'
@@ -391,7 +394,12 @@ function init() {
     player.el.style.zIndex = player.y
     setSize(settings.map)
 
-    document.addEventListener('click', e => {
+    // 封装点击事件处理逻辑
+    const clickHandler = (e) => {
+        // 开始移动再播放音乐
+        if (!playingMusic) {
+            elements.audio.play();
+        }
         stopSprite(player)
         const {left, top} = settings.map.el.getBoundingClientRect()
 
@@ -408,8 +416,20 @@ function init() {
         }
 
         handleWalk()
-    })
+    }
 
+// 启用点击事件
+    const enableClickEvent = () => {
+        document.addEventListener('click', clickHandler);
+    }
+
+// 禁用点击事件
+    const disableClickEvent = () => {
+        document.removeEventListener('click', clickHandler);
+    }
+
+// 初始化时启用点击事件
+    enableClickEvent();
     const elAngle = pos => {
         const {x, y} = pos
         const angle = radToDeg(Math.atan2(y - player.y, x - player.x)) - 90
@@ -458,9 +478,29 @@ function init() {
 
     // elements.button.addEventListener('click', ()=> location.reload())
 
-    new Array(1).fill('').forEach(() => addBunny())
+    new Array(5).fill('').forEach(() => addBunny())
     new Array(100).fill('').forEach(() => addTree())
     updateSadBunnyCount()
 }
 
 window.addEventListener('DOMContentLoaded', init)
+
+const submitAnswer = () => {
+    const selectedOption = document.querySelector('input[name="quizOption"]:checked');
+    const inputAnswer = document.querySelector('input[name="quizInput"]');
+
+    let answer = '';
+    if (selectedOption) {
+        answer = selectedOption.value;
+    } else if (inputAnswer) {
+        answer = inputAnswer.value;
+    }
+
+    alert(`您的答案是：${answer}`);
+    closeQuizModal();
+}
+
+const closeQuizModal = () => {
+    let modal = document.getElementById('quizModal');
+    modal.classList.add('d-none');
+}
