@@ -8,7 +8,12 @@ function init() {
         bunnyRadar: document.querySelector('.circle'),
         bunnyPos: [],
         endMessage: document.querySelector('.end-message'),
-        button: document.querySelector('button')
+        button: document.querySelector('button'),
+
+
+        modal: document.getElementById('quizModal'),
+        quizQuestion: document.getElementById('quizQuestion'),
+        quizOptions: document.getElementById('quizOptions'),
     }
 
 
@@ -183,7 +188,7 @@ function init() {
         const sadBunnyCount = settings.bunnies.filter(b => b.sad).length
         elements.indicator.innerHTML = sadBunnyCount ? `x ${sadBunnyCount}` : ''
         if (!sadBunnyCount) {
-            elements.endMessage.classList.remove('d-none')
+            // elements.endMessage.classList.remove('d-none')
             elements.indicator.classList.add('happy')
         }
     }
@@ -195,10 +200,10 @@ function init() {
         const quizOptions = document.getElementById('quizOptions');
 
         // 设置问题文本
-        quizQuestion.textContent = question;
+        elements.quizQuestion.textContent = question;
 
         // 清空选项内容
-        quizOptions.innerHTML = '';
+        elements.quizOptions.innerHTML = '';
 
         // 根据类型生成选项
         if (type === 'radio') {
@@ -207,24 +212,23 @@ function init() {
                 label.innerHTML = `
         <input type="radio" name="quizOption" value="${option}"> ${option}
       `;
-                quizOptions.appendChild(label);
+                elements.quizOptions.appendChild(label);
             });
         } else if (type === 'input') {
             const input = document.createElement('input');
             input.type = 'text';
             input.name = 'quizInput';
             input.placeholder = '请输入答案';
-            quizOptions.appendChild(input);
+            elements.quizOptions.appendChild(input);
         }
 
         // 显示弹出层
-        modal.classList.remove('d-none');
+        elements.modal.classList.remove('d-none');
     }
 
     // 隐藏弹出层
     const closeQuizModal = () => {
-        const modal = document.getElementById('quizModal');
-        modal.classList.add('d-none');
+        elements.modal.classList.add('d-none');
     }
 
     // 提交答案逻辑
