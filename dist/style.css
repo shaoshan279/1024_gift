@@ -451,6 +451,7 @@ a:hover { text-decoration: underline; }
   background-image: url("./img/礼盒.png");
 }
 
+/*<editor-fold desc="弹出问答框">*/
 .quiz-modal {
   display: flex;
   justify-content: center;
@@ -460,26 +461,68 @@ a:hover { text-decoration: underline; }
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.8);
   z-index: 999999;
+  animation: fadeIn 0.3s; /* 添加淡入效果 */
 }
 
 .quiz-content {
   background: white;
   padding: 20px;
-  width: 300px;
-  border-radius: 10px;
+  width: 320px; /* 稍微增大宽度 */
+  border-radius: 15px; /* 增加圆角 */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* 添加阴影 */
   text-align: center;
   z-index: 999999;
+}
+
+h3 {
+  font-family: 'Arial', sans-serif; /* 使用现代字体 */
+  color: #333; /* 更深的颜色 */
+  margin-bottom: 10px;
+}
+
+#quizQuestion {
+  font-size: 16px; /* 调整字体大小 */
+  color: #555; /* 调整字体颜色 */
+  margin-bottom: 20px;
 }
 
 .options label {
   display: block;
   margin-top: 10px;
-  z-index: 999999;
+  font-size: 14px; /* 调整字体大小 */
+  color: #666; /* 调整字体颜色 */
 }
 
+button {
+  margin-top: 15px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px; /* 圆角按钮 */
+  background-color: #007bff; /* 按钮背景色 */
+  color: white; /* 字体颜色 */
+  cursor: pointer;
+  transition: background-color 0.3s; /* 按钮颜色过渡 */
+}
 
+button:hover {
+  background-color: #0056b3; /* 悬停效果 */
+}
+
+/* 淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/*</editor-fold>*/
+
+
+/*<editor-fold desc="音乐">*/
 #music-control {
   position: absolute;
   top: 10px;
@@ -493,3 +536,85 @@ a:hover { text-decoration: underline; }
   height: auto;
 
 }
+/*</editor-fold>*/
+
+/*<editor-fold desc="红包">*/
+html { color: #fff; font-size: 14px; }
+.container {
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 15px 5px;
+  background-color: rgba(0, 0, 0, 0.3);
+  height: 100%;
+  z-index: 999999;
+  position: absolute;
+  top: 20%;
+}
+#close {
+  position: absolute;
+  right: 15px;
+  top: 5px;
+}
+.hongbao {
+  height: 450px;
+  width: 300px;
+  background: #A5423A;
+  border-radius: 10px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+.topcontent {
+  height: 280px;
+  background-color: #bf4228;
+  border: 1px solid #bf4228;
+  border-radius: 10px 10px 50% 50%/10px 10px 15% 15%;
+  box-shadow: 0px 4px 0px -1px rgba(0, 0, 0, 0.2);
+  transition: transform 0.6s ease-in-out;
+}
+.avatar { position: relative; }
+.avatar span {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 2em;
+  font-weight: bolder;
+  color: rgba(0, 0, 0, 0.5);
+  transform: rotate(45deg);
+}
+.avatar img {
+  border: 1px solid #BD503A;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-top: 10%;
+}
+.topcontent h2 { margin: 15px 0; }
+.text { color: #999999; }
+.desscription {
+  margin: 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+#chai {
+  display: inline-block;
+  width: 100px;
+  height: 100px;
+  border: 1px solid #ffA73A;
+  background-color: #FFA73A;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 20px;
+  margin-top: -50px;
+  cursor: pointer;
+}
+#chai span { display: inline-block; margin-top: 25px; font-size: 32px;}
+.hidden { display: none; }
+.amount {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 20px;
+  color: #FFD700; /* 金色 */
+}
+/*</editor-fold>*/

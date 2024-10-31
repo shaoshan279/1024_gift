@@ -13,16 +13,31 @@ function init() {
         quizQuestion: document.getElementById('quizQuestion'),
         quizOptions: document.getElementById('quizOptions'),
         audio: document.getElementById('background-music'),
+
+
+        // 红包elem
+        oContainer : document.getElementById("container"),
+        oChai : document.getElementById("chai"),
+        oClose :document.getElementById("close"),
+        oTopContent: document.getElementById("topcontent"),
+        oAmount: document.getElementById("amount"),
     }
 
     let qaList = [
-        {question: "哪个数字最大", options: [1,2,3,4], type:'radio'},
+        {question: "宝贝, 今天是什么日子啊", options: ['情人节','生日','恋爱周年','发工资'], type:'radio'},
         {question: "请输入李大广的名字", options: [], type:'input'},
+        {question: "想要哪个生日礼物?", options: ['黄金','鲜花','口红','包包'], type:'checkbox'},
+        {question: "红包口令", options: [], type:'redBox'},
     ]
 
     const radToDeg = rad => Math.round(rad * (180 / Math.PI))
     const distanceBetween = (a, b) => Math.round(Math.sqrt(Math.pow((a.x - b.x), 2) + Math.pow((a.y - b.y), 2)))
     const randomN = max => Math.ceil(Math.random() * max)
+
+    // 生成一个0到max（不包括max）之间的随机整数
+    function randomNumber(max) {
+        return Math.floor(Math.random() * max);
+    }
     const px = n => `${n}px`
     const setPos = ({el, x, y}) => Object.assign(el.style, {left: `${x}px`, top: `${y}px`})
 
@@ -211,8 +226,11 @@ function init() {
     }
 
     const getQuestion = () => {
-        let num = randomN(qaList.length-1);
-        let questionObj = qaList[num];
+        if (qaList.length === 0) {
+            return null; // 或者抛出异常，或者返回一个特定的值表示没有更多问题
+        }
+        let randomIndex = randomNumber(qaList.length);
+        let questionObj = qaList.splice(randomIndex, 1)[0]; // 使用splice方法移除并返回问题对象
         return questionObj;
     }
 
@@ -221,7 +239,7 @@ function init() {
         elements.indicator.innerHTML = sadBunnyCount ? `x ${sadBunnyCount}` : ''
         const questionFlag = sadBunnyCount % 2 == 0
         if (questionFlag) {
-            let questionObj = qaList[randomN(qaList.length-1)];
+            let questionObj = getQuestion();
             showQuizModal(questionObj)
         }
         if (!sadBunnyCount) {
@@ -234,22 +252,31 @@ function init() {
         elements.quizQuestion.textContent = question;
         elements.quizOptions.innerHTML = '';
 
-        if (type === 'radio') {
+        if (type === 'radio' || type === 'checkbox') {
             options.forEach((option, index) => {
                 const label = document.createElement('label');
-                label.innerHTML = `                    <input type="radio" name="quizOption" value="${option}"> ${option}                `;
+                label.style.display = 'block'; // 确保每个选项在新行显示
+                label.innerHTML = `
+                <input type="${type}" name="${type === 'radio' ? 'quizOption' : 'quizCheckbox'}" value="${option}" style="margin-right: 8px;">
+                ${option}
+            `;
                 elements.quizOptions.appendChild(label);
             });
+            elements.modal.classList.remove('d-none');
         } else if (type === 'input') {
             const input = document.createElement('input');
             input.type = 'text';
             input.name = 'quizInput';
             input.placeholder = '请输入答案';
             elements.quizOptions.appendChild(input);
+            elements.modal.classList.remove('d-none');
+        } else if (type === 'redBox') {
+            enableRedBoxClickEvent(question);
+            elements.oContainer.classList.remove('d-none');
         }
 
-        elements.modal.classList.remove('d-none');
-    }
+    };
+
 
     const hugBunny = bunny => {
         const classToAdd = bunny.x > player.x ? 'hug-bear-bunny' : 'hug-bunny-bear'
@@ -418,18 +445,29 @@ function init() {
         handleWalk()
     }
 
-// 启用点击事件
+    // 启用点击事件
     const enableClickEvent = () => {
         document.addEventListener('click', clickHandler);
     }
+
+    const enableRedBoxClickEvent = (password) => {
+        elements.oChai.onclick = function(){
+            elements.oTopContent.style.transform = "translateY(-100%)"; // 拆开效果
+            elements.oAmount.innerHTML=password; // 显示金额
+            elements.oAmount.classList.remove("hidden"); // 显示金额
+        }
+
+        elements.oClose.onclick = function(){
+            document.getElementById("container").style.display = "none";
+        }
+    }
+
 
 // 禁用点击事件
     const disableClickEvent = () => {
         document.removeEventListener('click', clickHandler);
     }
 
-// 初始化时启用点击事件
-    enableClickEvent();
     const elAngle = pos => {
         const {x, y} = pos
         const angle = radToDeg(Math.atan2(y - player.y, x - player.x)) - 90
@@ -473,12 +511,14 @@ function init() {
         resizeAndRepositionMap()
         resizeBunnyRadar()
     })
+    // 初始化时启用点击事件
+    enableClickEvent();
     resizeAndRepositionMap()
     resizeBunnyRadar()
 
     // elements.button.addEventListener('click', ()=> location.reload())
 
-    new Array(5).fill('').forEach(() => addBunny())
+    new Array(6).fill('').forEach(() => addBunny())
     new Array(100).fill('').forEach(() => addTree())
     updateSadBunnyCount()
 }
@@ -487,6 +527,7 @@ window.addEventListener('DOMContentLoaded', init)
 
 const submitAnswer = () => {
     const selectedOption = document.querySelector('input[name="quizOption"]:checked');
+    const quizCheckbox = document.querySelector('input[name="quizCheckbox"]:checked');
     const inputAnswer = document.querySelector('input[name="quizInput"]');
 
     let answer = '';
@@ -494,6 +535,8 @@ const submitAnswer = () => {
         answer = selectedOption.value;
     } else if (inputAnswer) {
         answer = inputAnswer.value;
+    } else if (quizCheckbox) {
+        answer = quizCheckbox.value;
     }
 
     alert(`您的答案是：${answer}`);
