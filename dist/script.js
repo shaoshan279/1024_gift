@@ -21,6 +21,7 @@ function init() {
         oClose :document.getElementById("close"),
         oTopContent: document.getElementById("topcontent"),
         oAmount: document.getElementById("amount"),
+        soundEffect: document.getElementById('soundEffect')
     }
 
     let qaList = [
@@ -272,6 +273,7 @@ function init() {
             elements.modal.classList.remove('d-none');
         } else if (type === 'redBox') {
             enableRedBoxClickEvent(question);
+            elements.soundEffect.play();
             elements.oContainer.classList.remove('d-none');
         }
 
