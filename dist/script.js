@@ -25,9 +25,12 @@ function init() {
     }
 
     let qaList = [
-        {question: "宝贝, 今天是什么日子啊", options: ['情人节','生日','恋爱周年','发工资'], type:'radio'},
-        {question: "请输入李大广的名字", options: [], type:'input'},
-        {question: "想要哪个生日礼物?", options: ['黄金','鲜花','口红','包包'], type:'checkbox'},
+        {question: "如果有一天我们可以去任何地方度假，你会选择：", options: ['热带海岛','雪山滑雪','古城旅行','漫游大自然'], type:'radio'},
+        {question: "如果我们可以一起参加一项挑战或冒险活动，你会选：", options: ['极限运动（如蹦极、跳伞等）','密室逃脱','徒步穿越','烹饪大赛'], type:'radio'},
+        {question: "你觉得我最吸引你的地方是：", options: ['帅气的外貌','幽默感','细心','能力'], type:'radio'},
+        {question: "你最喜欢我做的哪件事，让你觉得特别温暖或开心？", options: [], type:'input'},
+        {question: "你觉得我们的第一次约会是什么样子的？", options: [], type:'input'},
+        {question: "想要哪个生日礼物?", options: ['黄金(有且有1g)','鲜花(这个有很多朵哦)','香水水儿','神秘大奖'], type:'checkbox'},
         {question: "红包口令", options: [], type:'redBox'},
     ]
 
